@@ -1,0 +1,166 @@
+# FluidSpec Multi-Agent Development Pipeline Configuration
+# Version: 1.0.0
+# Description: Defines the orchestrator and specialized development agents
+
+agents:
+  # Main orchestrator that coordinates the development pipeline
+  dev-orchestrator:
+    role: orchestrator
+    description: Coordinates the entire development workflow from planning to testing
+    responsibilities:
+      - Parse and validate FluidSpec task documents
+      - Route work to appropriate specialized agents
+      - Maintain execution state and context
+      - Aggregate outputs from sub-agents
+      - Report progress and completion status
+    inputs:
+      - task_spec: FluidSpec-formatted task document (markdown)
+      - context: Project codebase context and metadata
+    outputs:
+      - execution_report: Summary of all pipeline steps and results
+      - dev_plan: Development plan from DevPlanner
+      - implementation: Code changes from DevImplementation
+      - tests: Test code from TestAgent
+    prompt_template: prompts/dev-orchestrator.txt
+    constraints:
+      - Must validate FluidSpec format before processing
+      - Must execute agents in sequential order
+      - Must preserve all sub-agent outputs
+      - Must handle agent failures gracefully
+
+  # Planning agent - creates execution plans
+  dev-planner:
+    role: planner
+    description: Analyzes FluidSpec tasks and creates detailed development plans
+    responsibilities:
+      - Parse Context and Requirements sections from FluidSpec
+      - Analyze existing codebase structure
+      - Identify files to create or modify
+      - Define component hierarchy and data flow
+      - Create sequential implementation steps
+    inputs:
+      - task_spec: FluidSpec task document
+      - codebase_context: Project structure, patterns, conventions
+    outputs:
+      - dev_plan: Structured development plan (markdown)
+        format: |
+          # Dev Plan
+          ## Task Summary
+          [1-2 sentence summary]
+
+          ## Files to Create
+          - path/to/file.ts - Purpose
+
+          ## Files to Modify
+          - path/to/file.ts - Changes needed
+
+          ## Implementation Steps
+          1. Step description
+          2. Step description
+
+          ## Dependencies
+          - Component/module dependencies
+
+          ## Data Flow
+          - How data moves through the system
+    prompt_template: prompts/dev-planner.txt
+    constraints:
+      - Must identify all affected files
+      - Must respect existing project patterns
+      - Must provide actionable, sequential steps
+      - Must not include implementation code
+      - Output must be valid markdown
+
+  # Implementation agent - writes code
+  dev-implementation:
+    role: implementer
+    description: Writes production-ready code based on development plans
+    responsibilities:
+      - Read and parse development plan
+      - Locate and read existing files
+      - Generate or modify code following project conventions
+      - Apply TypeScript/JavaScript best practices
+      - Ensure type safety and proper imports
+      - Create unified diff patches for changes
+    inputs:
+      - dev_plan: Development plan from DevPlanner
+      - codebase_files: Contents of files to modify
+      - project_conventions: TypeScript config, linting rules, patterns
+    outputs:
+      - implementation_patch: Unified diff format patches
+        format: |
+          FILE: path/to/file.ts
+          ACTION: CREATE | MODIFY
+          + new line content
+          + new line content
+          - removed line content
+          + modified line content
+    prompt_template: prompts/dev-implementation.txt
+    constraints:
+      - Must follow existing code style
+      - Must maintain type safety
+      - Must use proper imports (absolute/relative per project)
+      - Must not break existing functionality
+      - Must produce valid TypeScript/JavaScript
+      - Output must be valid unified diff format
+
+  # Testing agent - writes tests
+  test-agent:
+    role: tester
+    description: Creates comprehensive test coverage for implemented features
+    responsibilities:
+      - Analyze implementation patches
+      - Identify testable units and integration points
+      - Write unit tests for new functions/components
+      - Write integration tests for data flow
+      - Follow project testing conventions (Jest, Vitest, etc.)
+      - Ensure test coverage meets acceptance criteria
+    inputs:
+      - implementation_patch: Code changes from DevImplementation
+      - dev_plan: Original development plan
+      - existing_tests: Current test suite structure
+      - testing_conventions: Test framework, patterns, utilities
+    outputs:
+      - tests_patch: Test file patches in unified diff format
+        format: |
+          FILE: path/to/file.test.ts
+          ACTION: CREATE | MODIFY
+          + test('description', async () => {
+          +   // test implementation
+          + });
+    prompt_template: prompts/test-agent.txt
+    constraints:
+      - Must follow project test framework conventions
+      - Must test both happy path and edge cases
+      - Must use existing test utilities and mocks
+      - Must not duplicate existing tests
+      - Output must be valid unified diff format
+      - Tests must be runnable without modification
+
+# Pipeline execution order
+pipeline:
+  stages:
+    - name: planning
+      agent: dev-planner
+      required: true
+
+    - name: implementation
+      agent: dev-implementation
+      required: true
+      depends_on: planning
+
+    - name: testing
+      agent: test-agent
+      required: true
+      depends_on: implementation
+
+# Global settings
+settings:
+  output_directory: .fluidspec/output
+  max_retries: 2
+  validation:
+    require_fluidspec_format: true
+    require_acceptance_criteria: true
+  logging:
+    level: info
+    output: .fluidspec/logs/pipeline.log

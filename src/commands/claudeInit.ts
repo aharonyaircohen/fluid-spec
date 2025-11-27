@@ -173,6 +173,18 @@ export function initSpecFiles(
   } else {
     console.warn(`Warning: Project spec templates not found at ${projectTemplateDir}`);
   }
+
+  // Copy agents configuration
+  const agentsSourceDir = path.join(specTemplatesRoot, 'agents');
+  const agentsTargetDir = path.join(projectRoot, '.fluidspec', 'agents');
+
+  if (pathExists(agentsSourceDir)) {
+    console.log(`\nCopying agent configuration to: ${agentsTargetDir}`);
+    const { copied } = copyDir(agentsSourceDir, agentsTargetDir, true);
+    console.log(`  Agent files copied: ${copied} (overwritten if existed)`);
+  } else {
+    console.warn(`Warning: Agents directory not found at ${agentsSourceDir}`);
+  }
 }
 
 function copyProjectTemplates(
