@@ -1,5 +1,16 @@
 # CLAUDE.md
 
+<!-- AI Agent Quick Reference -->
+## TL;DR
+- **Package**: TypeScript package for Claude commands + FluidSpec standards
+- **Install**: Git-installable via `pnpm add git+https://github.com/...`
+- **Build**: Two-stage (tsc → dual-format .cjs/.mjs generation)
+- **Key dirs**: `src/` (TypeScript), `templates/` (copied to user projects), `scripts/` (build tools)
+- **Main feature**: `fluidspec claude:init` copies templates to `.claude/commands/`
+- **Module system**: ESM + CJS dual format, zero dependencies
+
+---
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview

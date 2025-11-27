@@ -1,5 +1,15 @@
 ## Feature Branch Creation Command
 
+<!-- AI Agent Quick Reference -->
+## TL;DR
+- **Purpose**: Create conventional commit-style feature branches interactively
+- **Interactive**: Ask 2 questions (type + purpose) before creating branch
+- **Format**: `<type>/<task-purpose-slug>` (e.g., `feat/add-user-login`)
+- **Pre-flight**: Ensure on `dev`, clean working dir, fetch/pull latest
+- **Types**: feat, fix, refactor, style, chore, docs
+
+---
+
 **Agent Goal:** Interactively create a new feature branch following Conventional Commits semantics, ensuring the process starts from a clean, updated `dev` branch.
 
 **IMPORTANT:** This command is INTERACTIVE. Ask the user two questions before creating the branch.

@@ -1,5 +1,16 @@
 # FluidSpec Coding Conventions
 
+<!-- AI Agent Quick Reference -->
+## TL;DR
+- **Purpose**: Implementation patterns and coding guidance (constraints.md takes precedence)
+- **Define in your project**: Tech stack, directory structure, styling approach, state management
+- **Key patterns**: Feature-based architecture, component separation, typed APIs, error boundaries
+- **Forbidden (frontend)**: New UI frameworks, `any` type, hardcoded endpoints, inline secrets
+- **Forbidden (backend)**: Unapproved ORMs, unvalidated inputs, exposed secrets, missing auth checks
+- **Quick sections**: Stack (§1), Structure (§2), Components (§3), Data (§4), Forms (§7), Testing (§9)
+
+---
+
 Practical coding patterns and implementation guidance for software development projects.
 
 **Related Documents:**

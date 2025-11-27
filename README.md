@@ -10,6 +10,11 @@ A lightweight package that delivers and syncs all Fluid Spec agents and Claude c
 - **Claude Command Templates**: Ready-to-use AI agent personas for task engineering, development, and management
 - **CLI Tool**: Easy integration into any project via the `fluidspec` command
 
+## Requirements
+
+- Node.js 18+ (per `engines` in `package.json`)
+- Access to **Claude Code** to run the provided command templates effectively
+
 ## Features
 
 - ✅ **Git-installable**: Use directly from GitHub without npm publishing
@@ -167,6 +172,18 @@ Running `fluidspec claude:init` copies Fluid Spec documentation into your projec
 - Project templates → `.fluidspec/spec/project/` (copied from `*.template.md`, existing `.md` files are never overwritten)
 
 Reference these files directly inside Claude commands, for example `.fluidspec/spec/base/constraints.md` or `.fluidspec/spec/project/task-template.md`.
+
+### Spec Precedence and Overwrite Rules
+
+- Base specs (`.fluidspec/spec/base/**`): always overwritten on init to stay current.
+- Project specs (`.fluidspec/spec/project/**`, including `custom/**`): copied skip-only; existing `.md` files are never overwritten, even with `--force`. Template files ending with `.template.md` are renamed to `.md` on first copy.
+- Custom additions: add your own `.md` under `.fluidspec/spec/project/custom/**` to extend project guidance.
+
+### Troubleshooting
+
+- Missing specs after init: ensure you have write access to `.fluidspec/` and rerun `fluidspec claude:init` (base files overwrite, project files skip if present).
+- Commands not recognized: verify Node.js 18+ and that `fluidspec` is on your PATH (or use `npx fluidspec`).
+- Claude commands need Claude Code access: confirm your Claude environment supports these command templates.
 
 ## Development
 

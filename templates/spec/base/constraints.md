@@ -1,5 +1,16 @@
 # FluidSpec Constraints — High Standards
 
+<!-- AI Agent Quick Reference -->
+## TL;DR
+- **Purpose**: Non-negotiable hard rules for all tasks (overrides conventions)
+- **Precedence**: Constraints > Conventions > Project decisions
+- **Key areas**: Security, quality gates, testing, git workflow, accessibility, error handling
+- **Never skip**: Input validation, secrets in env vars, auth at boundaries, accessibility checks
+- **Always require**: Tests before merge, code review, security scans, documentation updates
+- **Quick lookup**: Search by domain (Security §14, API §15, Frontend §12, Backend §13, Testing §18)
+
+---
+
 This document defines **non-negotiable constraints** for AI agents working with FluidSpec tasks.
 Agents must treat these as hard rules when performing any task.
 
