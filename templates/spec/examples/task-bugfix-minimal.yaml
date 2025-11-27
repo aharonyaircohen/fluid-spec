@@ -1,0 +1,29 @@
+# Minimal Bugfix Task Example
+# This demonstrates the minimum required fields for a valid FluidSpec task
+
+task_id: T-2025-042
+title: "Fix user profile image upload error"
+type: bugfix
+status: planned
+
+goal: >
+  Users can successfully upload profile images without encountering the
+  "MIME type validation failed" error that currently occurs with PNG files.
+
+aios_specs:
+  core:
+    - ".fluidspec/spec/base/constraints.md"
+    - ".fluidspec/spec/base/conventions.md"
+    - ".fluidspec/spec/base/README.md"
+
+constraints:
+  - "Fix must not break existing image upload functionality for JPEGs"
+  - "Must validate file types on both client and server"
+
+acceptance_criteria:
+  - "PNG images upload successfully"
+  - "Error no longer appears in browser console"
+  - "Existing JPEG uploads still work"
+  - "All image upload tests pass"
+
+file_path: ".fluidspec/tasks/bugfix/042-20250127/fix-png-upload-error.yaml"

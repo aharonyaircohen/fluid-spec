@@ -1,0 +1,64 @@
+# Refactor Task Example
+# Improving code structure without changing external behavior
+
+task_id: T-2025-015
+title: "Refactor user service into feature-based modules"
+type: refactor
+status: planned
+requires_operator_approval: true
+
+owner: "backend-team"
+created_at: "2025-01-27"
+
+summary: >
+  Split the monolithic UserService class into smaller, focused modules following
+  feature-based architecture patterns defined in conventions.md.
+
+goal: >
+  UserService is broken into domain-specific modules (UserAuth, UserProfile,
+  UserPreferences) with clear interfaces, improving maintainability and
+  testability without changing any external API behavior.
+
+background: >
+  UserService has grown to over 1500 lines and handles too many responsibilities.
+  This violates our architecture constraints and makes the code difficult to
+  test and maintain.
+
+aios_specs:
+  core:
+    - ".fluidspec/spec/base/constraints.md"
+    - ".fluidspec/spec/base/conventions.md"
+    - ".fluidspec/spec/base/README.md"
+
+project_specs:
+  - ".fluidspec/spec/project/tech-stack.md"
+
+constraints:
+  - "No changes to public API signatures"
+  - "All existing tests must continue to pass without modification"
+  - "No observable behavior changes for API consumers"
+  - "Follow feature-based architecture from conventions.md §2"
+
+acceptance_criteria:
+  - "UserService split into UserAuth, UserProfile, UserPreferences modules"
+  - "Each module has clear, documented public interface"
+  - "All existing unit tests pass without changes"
+  - "All integration tests pass without changes"
+  - "No API contract changes (verified by contract tests)"
+  - "Code coverage remains at or above current level (85%)"
+  - "Cyclomatic complexity reduced below threshold (15 per function)"
+
+expected_outputs:
+  - "New module files: UserAuth.ts, UserProfile.ts, UserPreferences.ts"
+  - "Updated UserService as facade/coordinator"
+  - "Updated internal documentation"
+  - "Architecture decision record (ADR) for the refactor"
+
+risk_level: medium
+
+notes: >
+  This is a large refactor. Consider breaking into smaller sub-tasks if needed.
+  Ensure backward compatibility by maintaining the UserService class as a
+  facade that delegates to the new modules.
+
+file_path: ".fluidspec/tasks/refactor/015-20250127/split-user-service-modules.yaml"

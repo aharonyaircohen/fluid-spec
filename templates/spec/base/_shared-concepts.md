@@ -1,3 +1,13 @@
+---
+title: "Shared Concepts Reference"
+domain: "core-specs"
+audience: "ai-agents, all-developers"
+type: "reference"
+estimated_tokens: 1150
+last_updated: "2025-01-27"
+version: "2.0.0"
+---
+
 # Shared Concepts – FluidSpec Reference
 
 <!-- AI Agent Quick Reference -->

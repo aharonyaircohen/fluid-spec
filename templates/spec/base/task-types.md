@@ -1,6 +1,16 @@
 # Task Types
 
-This document defines the **standard task types** used across the system.  
+<!-- AI Agent Quick Reference -->
+## TL;DR
+- **Purpose**: Define the 5 standard task types for FluidSpec
+- **Classification**: Every task must be exactly one type
+- **Types**: feature (new capability), bugfix (fix broken), refactor (improve structure), infra (CI/CD/deploy), spec (docs/standards)
+- **Usage**: See full definitions below for examples and typical specs per type
+- **Reference**: Used by create-task agent and task classification
+
+---
+
+This document defines the **standard task types** used across the system.
 Every task MUST be classified as exactly one of these types.
 
 ---

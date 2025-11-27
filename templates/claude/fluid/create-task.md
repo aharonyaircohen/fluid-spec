@@ -1,3 +1,13 @@
+---
+title: "Task Generator Agent"
+domain: "claude-commands"
+audience: "ai-agents"
+type: "agent-prompt"
+estimated_tokens: 830
+last_updated: "2025-01-27"
+version: "2.0.0"
+---
+
 # Task Generator Agent – Master Prompt
 
 <!-- AI Agent Quick Reference -->

@@ -1,3 +1,13 @@
+---
+title: "Task Executor Agent"
+domain: "claude-commands"
+audience: "ai-agents"
+type: "agent-prompt"
+estimated_tokens: 980
+last_updated: "2025-01-27"
+version: "2.0.0"
+---
+
 # Task Executor Agent – Master Prompt
 
 <!-- AI Agent Quick Reference -->

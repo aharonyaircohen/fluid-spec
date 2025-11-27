@@ -1,3 +1,13 @@
+---
+title: "FluidSpec Coding Conventions"
+domain: "core-specs"
+audience: "all-developers, ai-agents"
+type: "implementation-patterns"
+estimated_tokens: 1000
+last_updated: "2025-01-27"
+version: "2.0.0"
+---
+
 # FluidSpec Coding Conventions
 
 <!-- AI Agent Quick Reference -->

@@ -1,3 +1,13 @@
+---
+title: "FluidSpec Constraints"
+domain: "core-specs"
+audience: "all-developers, ai-agents"
+type: "hard-rules"
+estimated_tokens: 1400
+last_updated: "2025-01-27"
+version: "2.0.0"
+---
+
 # FluidSpec Constraints — High Standards
 
 <!-- AI Agent Quick Reference -->

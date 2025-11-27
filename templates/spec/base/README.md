@@ -1,5 +1,15 @@
 # FluidSpec Documentation
 
+<!-- AI Agent Quick Reference -->
+## TL;DR
+- **Purpose**: Standardized format for software development task specifications
+- **Core principle**: Clear, complete, testable, traceable
+- **5-section structure**: Context, Requirements, Implementation Steps, Acceptance Criteria, Links
+- **Key files**: task-template.md (template), constraints.md (rules), conventions.md (patterns)
+- **Commands**: /fluid-make-task, /fluid-run-task, /fluid-task-engineer, /fluid-dev-agent
+
+---
+
 Welcome to FluidSpec - a structured approach to software development task specifications.
 
 ## What is FluidSpec?

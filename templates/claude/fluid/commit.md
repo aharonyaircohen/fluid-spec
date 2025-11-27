@@ -1,5 +1,15 @@
 ## Conventional Commit and Stage/Execute Prompt
 
+<!-- AI Agent Quick Reference -->
+## TL;DR
+- **Purpose**: Auto-generate conventional commit message, stage all files, execute commit
+- **Format**: `<type>(<scope>): <description>` (max 50 chars header)
+- **Types**: feat, fix, refactor, style, chore, docs
+- **Workflow**: Generate message → `git add -A` → `git commit -m "..."`
+- **Output**: Confirm successful commit with generated message
+
+---
+
 **Agent Goal:** Generate a concise, conventional commit message based on the input, then **stage all modified/untracked files** and **execute the commit** with the generated message.
 
 -----
