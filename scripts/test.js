@@ -261,7 +261,7 @@ test('CLI claude:init creates command structure', () => {
     if (!projectFiles.includes('task-template.md')) {
       throw new Error('Project templates were not renamed to .md files');
     }
-    if (!projectFiles.includes('design--system.md') || !projectFiles.includes('tech-stack.md')) {
+    if (!projectFiles.includes('design-system.md') || !projectFiles.includes('tech-stack.md')) {
       throw new Error('Project spec .md files were not copied to .fluidspec/spec/project');
     }
 
