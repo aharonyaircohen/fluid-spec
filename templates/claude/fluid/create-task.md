@@ -109,81 +109,35 @@ If the user mentions additional specs or design docs, add them under `project_sp
 
 ## 4. YAML Task File Schema
 
-You MUST output the task as a YAML file following this schema:
+You MUST output the task as a YAML file. **See [_shared-concepts.md#yaml-task-schema](.fluidspec/spec/base/_shared-concepts.md#yaml-task-schema-quick-reference) for complete schema reference.**
+
+**Minimal required fields:**
 
 ```yaml
-task_id: T-2025-001           # auto-generate: T-YYYY-NNN style
+task_id: T-YYYY-NNN              # Auto-generate unique ID
 title: "Short explicit title"
-type: feature | bugfix | refactor | infra | spec
-status: planned               # always start as "planned"
-requires_operator_approval: true  # operator must approve before completion
-iteration: 1                      # managed by Task Manager; increment on re-runs
-operator_feedback: ""             # latest operator input when changes are requested
-git_integration:
-  enabled: true                   # when true, Task Manager commits/pushes after approval
-  branch: dev                     # target branch
-  commit_message_format: "<type>(task-<id>): <short description>"
-
-owner: "human-owner-handle"  # optional
-created_at: "YYYY-MM-DD"     # today’s date (ISO)
-
-summary: >
-  One or two sentences describing the core of the task in plain language.
-
-goal: >
-  Desired outcome expressed in terms of behavior / result, not implementation.
-
-background: >
-  Optional context: why this task exists, related bugs, incidents, or business reasons.
-
-inputs:
-  - "Optional link or reference provided by the user"
+type: feature | bugfix | refactor | infra | spec  # See _shared-concepts.md#task-types
+status: planned                  # Always start as "planned"
+goal: "Desired outcome (behavior/result, not implementation)"
 
 aios_specs:
-  core:
+  core:                          # ALWAYS include these three
     - ".fluidspec/spec/base/constraints.md"
     - ".fluidspec/spec/base/conventions.md"
     - ".fluidspec/spec/base/README.md"
-  extra:
-    - ".fluidspec/spec/project/task-template.md"
 
-project_specs:
-  - "Optional: add user-provided links or additional specs"
+constraints: ["E.g., no breaking changes to public API"]
+acceptance_criteria: ["Functional behavior works as described", "All tests pass"]
 
-constraints:
-  - "E.g. no breaking changes to public API"
-  - "E.g. must remain backwards-compatible with existing data"
-
-acceptance_criteria:
-  - "Functional behavior works as described in goal"
-  - "All relevant tests pass"
-  - "No new lint or type errors"
-  - "Code reviewed and approved"
-
-expected_outputs:
-  - "Code changes"
-  - "Tests"
-  - "Docs update (if needed)"
-
-risk_level: low | medium | high
-
-notes: >
-  Any extra hints, edge cases, or warnings.
-
-file_path: ".fluidspec/tasks/feature/001-20251125/short-title-slug.yaml"
+file_path: ".fluidspec/tasks/<type>/<NNN-YYYYMMDD>/<slug>.yaml"
 ```
 
-Rules:
+**Critical rules:**
 
-* `task_id` MUST be unique; use a predictable pattern like `T-YYYYMMDD-001` if needed.
-* `file_path` MUST:
-
-  * start with `.fluidspec/tasks/`
-  * include the task type folder, e.g. `.fluidspec/tasks/feature/`
-  * include a dated subfolder with zero-padded sequence and date: `NNN-YYYYMMDD` (e.g., `001-20251125`)
-  * filename is the task slug, e.g., `login-button-toggle.yaml`
-* Keep `requires_operator_approval` set to `true` so the Task Manager enters the approval loop; it will drive `status` through `in_progress` -> `awaiting_approval` -> `completed`/`rejected` and manage `iteration` and `operator_feedback` each time the operator requests changes.
-* When `git_integration.enabled = true`, the Task Manager will stage, commit, and push to `dev` after operator approval using the configured commit message format. Disable this only if the task should not auto-commit.
+* `file_path`: `.fluidspec/tasks/<type>/<NNN-YYYYMMDD>/<slug>.yaml` (e.g., `.fluidspec/tasks/feature/001-20251127/add-login.yaml`)
+* `requires_operator_approval`: default `true` (enables approval loop)
+* `git_integration.enabled`: default `true` (auto-commit/push after approval)
+* `aios_specs.core`: ALWAYS include the three core specs listed above
 
 ---
 
