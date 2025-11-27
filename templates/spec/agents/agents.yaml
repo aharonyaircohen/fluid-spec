@@ -3,31 +3,6 @@
 # Description: Defines the orchestrator and specialized development agents
 
 agents:
-  # Main orchestrator that coordinates the development pipeline
-  dev-orchestrator:
-    role: orchestrator
-    description: Coordinates the entire development workflow from planning to testing
-    responsibilities:
-      - Parse and validate FluidSpec task documents
-      - Route work to appropriate specialized agents
-      - Maintain execution state and context
-      - Aggregate outputs from sub-agents
-      - Report progress and completion status
-    inputs:
-      - task_spec: FluidSpec-formatted task document (markdown)
-      - context: Project codebase context and metadata
-    outputs:
-      - execution_report: Summary of all pipeline steps and results
-      - dev_plan: Development plan from DevPlanner
-      - implementation: Code changes from DevImplementation
-      - tests: Test code from TestAgent
-    prompt_template: prompts/dev-orchestrator.txt
-    constraints:
-      - Must validate FluidSpec format before processing
-      - Must execute agents in sequential order
-      - Must preserve all sub-agent outputs
-      - Must handle agent failures gracefully
-
   # Planning agent - creates execution plans
   dev-planner:
     role: planner
@@ -63,7 +38,7 @@ agents:
 
           ## Data Flow
           - How data moves through the system
-    prompt_template: prompts/dev-planner.txt
+    prompt_template: prompts/dev-planner.md
     constraints:
       - Must identify all affected files
       - Must respect existing project patterns
@@ -95,7 +70,7 @@ agents:
           + new line content
           - removed line content
           + modified line content
-    prompt_template: prompts/dev-implementation.txt
+    prompt_template: prompts/dev-implementation.md
     constraints:
       - Must follow existing code style
       - Must maintain type safety
@@ -128,7 +103,7 @@ agents:
           + test('description', async () => {
           +   // test implementation
           + });
-    prompt_template: prompts/test-agent.txt
+    prompt_template: prompts/test-agent.md
     constraints:
       - Must follow project test framework conventions
       - Must test both happy path and edge cases
@@ -137,8 +112,129 @@ agents:
       - Output must be valid unified diff format
       - Tests must be runnable without modification
 
+  # Types and logic agent - pure TypeScript types and business logic
+  types-and-logic-agent:
+    role: implementer
+    description: Defines TypeScript types, interfaces, enums, and implements pure business logic
+    responsibilities:
+      - Define and update TypeScript types, interfaces, enums, schemas
+      - Implement pure business logic functions (no UI, no side-effects)
+      - Keep code small, composable, and fully type-safe
+      - Follow existing project conventions and naming patterns
+    inputs:
+      - task_spec: FluidSpec task document
+      - dev_plan: Development plan from DevPlanner
+      - codebase_context: Relevant existing types and logic files
+      - project_conventions: TypeScript and domain conventions
+    outputs:
+      - types_and_logic_files: TypeScript files as FILE blocks
+        format: |
+          FILE: path/to/file.ts
+
+          ```ts
+          // full updated content
+          ```
+    prompt_template: prompts/types-and-logic-agent.md
+    constraints:
+      - Must follow existing code style and folder structure
+      - Must keep functions pure (no I/O, network calls, timers)
+      - Must NOT create or modify JSX/React components
+      - Must NOT call external APIs directly
+      - Must output only TypeScript code
+
+  # Integration agent - hooks, services, API clients
+  integration-agent:
+    role: integrator
+    description: Connects UI and logic to data sources and infrastructure
+    responsibilities:
+      - Implement hooks, services, and integration layers for GraphQL/REST
+      - Handle loading, error, and success states
+      - Wire pure logic functions to data-fetching and side-effects
+      - Expose clean, typed APIs for UIAgent to consume
+    inputs:
+      - task_spec: FluidSpec task document
+      - dev_plan: Development plan from DevPlanner
+      - types_and_logic_files: Pure logic and types from TypesAndLogicAgent
+      - existing_integration_files: Current hooks/services/clients
+      - integration_conventions: Backend communication, error handling, caching patterns
+    outputs:
+      - integration_files: Integration code as FILE blocks
+        format: |
+          FILE: apps/web/src/hooks/useSomething.ts
+
+          ```ts
+          // full updated content
+          ```
+    prompt_template: prompts/integration-agent.md
+    constraints:
+      - Must follow existing integration patterns
+      - Must NOT implement heavy business logic
+      - Must NOT implement JSX or UI layouts
+      - Must respect error-handling, caching, and naming conventions
+
+  # UI agent - React components and layouts
+  ui-agent:
+    role: presenter
+    description: Implements React components and UI layouts using JSX and TailwindCSS
+    responsibilities:
+      - Implement React components and UI layouts
+      - Respect design system and UI conventions
+      - Wire existing props and functions into presentational components
+      - Prefer composition over duplication
+    inputs:
+      - task_spec: FluidSpec task document
+      - dev_plan: Development plan from DevPlanner
+      - types_and_logic_files: Types and logic from TypesAndLogicAgent
+      - design_system: Design tokens, layout rules, UI components reference
+      - ui_conventions: Naming and structure rules for components
+    outputs:
+      - ui_files: UI components as FILE blocks
+        format: |
+          FILE: apps/web/src/components/Something.tsx
+
+          ```tsx
+          // full updated content
+          ```
+    prompt_template: prompts/ui-agent.md
+    constraints:
+      - Must use only provided design tokens and Tailwind utilities
+      - Must NOT implement business logic or data transformations
+      - Must NOT call external APIs or perform side-effects
+      - Must reuse existing components when possible
+
+  # Refactor agent - code cleanup and optimization
+  refactor-agent:
+    role: optimizer
+    description: Improves readability, structure, and consistency of existing code
+    responsibilities:
+      - Improve readability, structure, and consistency
+      - Apply project conventions without changing behavior
+      - Reduce duplication and dead code where safe
+      - Align imports, formatting, and folder structure
+    inputs:
+      - task_spec: FluidSpec task (optional, may be empty for pure refactor)
+      - recent_patches: Implementation and test patches from previous agents
+      - project_conventions: Coding, naming, and architecture standards
+      - candidate_files: List of files safe to refactor
+    outputs:
+      - refactored_files: Cleaned code as FILE blocks
+        format: |
+          FILE: path/to/refactored/file.ts
+
+          ```ts
+          // full updated content after refactor
+          ```
+    prompt_template: prompts/refactor-agent.md
+    constraints:
+      - Must preserve behavior (no changes to public APIs or user-facing behavior)
+      - Must respect existing tests
+      - Must NOT introduce new features or flows
+      - When unsure, prefer minimal changes that improve readability
+
 # Pipeline execution order
-pipeline:
+
+# Simple pipeline for common tasks (backend-only, small fixes, no UI)
+simple_pipeline:
   stages:
     - name: planning
       agent: dev-planner
@@ -153,6 +249,41 @@ pipeline:
       agent: test-agent
       required: true
       depends_on: implementation
+
+    - name: refactor
+      agent: refactor-agent
+      required: true
+      depends_on: testing
+
+# Complex pipeline for UI/backend tasks (full-stack features)
+complex_pipeline:
+  stages:
+    - name: planning
+      agent: dev-planner
+      required: true
+
+    - name: types_and_logic
+      agent: types-and-logic-agent
+      required: true
+      depends_on: planning
+
+    - name: integration_and_ui
+      agents:
+        - integration-agent
+        - ui-agent
+      parallel: true
+      required: true
+      depends_on: types_and_logic
+
+    - name: testing
+      agent: test-agent
+      required: true
+      depends_on: integration_and_ui
+
+    - name: refactor
+      agent: refactor-agent
+      required: true
+      depends_on: testing
 
 # Global settings
 settings:

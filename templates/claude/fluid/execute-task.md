@@ -24,35 +24,69 @@ You are the **Task Executor Agent**. Your responsibility is to take a fully-defi
 
 ## Multi-Agent Pipeline
 
-This executor orchestrates specialized agents for each development phase:
+This executor orchestrates specialized agents for each development phase with support for two pipeline types:
+
+### Simple Pipeline (for common tasks)
 - **DevPlanner**: Analyzes task and creates detailed development plan
 - **DevImplementation**: Writes production-ready code following the plan
 - **TestAgent**: Creates comprehensive test coverage
+- **RefactorAgent**: Cleans up code, aligns with conventions (automatic)
+
+**Sequence:** DevPlanner → DevImplementation → TestAgent → RefactorAgent
+
+### Complex Pipeline (for UI/backend tasks)
+- **DevPlanner**: Analyzes task and creates detailed development plan
+- **TypesAndLogicAgent**: Defines types, interfaces, pure business logic
+- **IntegrationAgent** + **UIAgent**: Hook/services/API clients + React components (parallel)
+- **TestAgent**: Creates comprehensive test coverage
+- **RefactorAgent**: Cleans up code, aligns with conventions (automatic)
+
+**Sequence:** DevPlanner → TypesAndLogicAgent → (IntegrationAgent + UIAgent) → TestAgent → RefactorAgent
+
+### Pipeline Selection Criteria
+
+**Use Simple Pipeline when:**
+- Task involves backend-only changes
+- Task is a small bug fix or refactor
+- Task doesn't touch UI components
+- Task is straightforward with minimal moving parts
+
+**Use Complex Pipeline when:**
+- Task involves both UI and backend
+- Task requires new types/interfaces AND UI components
+- Task has complex data flow (types → integration → UI)
+- Dev plan explicitly separates logic, integration, and UI concerns
 
 **Agent configuration:** `.fluidspec/agents/agents.yaml`
 **Agent prompts:** `.fluidspec/agents/prompts/`
 
 **How the pipeline works:**
-1. Read the agent's prompt template from `.fluidspec/agents/prompts/<agent-name>.txt`
+1. Read the agent's prompt template from `.fluidspec/agents/prompts/<agent-name>.md`
 2. Follow the agent's SYSTEM instructions exactly
 3. Produce output matching the agent's OUTPUT FORMAT specification
 4. Pass outputs from one agent as inputs to the next agent
-
-**Pipeline sequence:** DevPlanner → DevImplementation → TestAgent
 
 **Agent visibility:**
 When entering each agent phase, announce the active agent with a status indicator:
 ```
 🤖 [AGENT: DevPlanner] Analyzing task and creating development plan...
-🤖 [AGENT: DevImplementation] Implementing code based on plan...
+🤖 [AGENT: DevImplementation] Implementing code based on plan... (simple pipeline)
+🤖 [AGENT: TypesAndLogicAgent] Implementing types and pure business logic... (complex pipeline)
+🤖 [AGENT: IntegrationAgent] Creating hooks and API integration... (complex pipeline, parallel)
+🤖 [AGENT: UIAgent] Implementing React components and UI layouts... (complex pipeline, parallel)
 🤖 [AGENT: TestAgent] Creating test coverage...
+🤖 [AGENT: RefactorAgent] Cleaning up and aligning with conventions...
 ```
 
 When an agent completes, show completion status:
 ```
 ✅ [AGENT: DevPlanner] Plan created - awaiting approval
-✅ [AGENT: DevImplementation] Implementation complete
+✅ [AGENT: DevImplementation] Implementation complete (simple pipeline)
+✅ [AGENT: TypesAndLogicAgent] Types and logic complete (complex pipeline)
+✅ [AGENT: IntegrationAgent] Integration layer complete (complex pipeline)
+✅ [AGENT: UIAgent] UI components complete (complex pipeline)
 ✅ [AGENT: TestAgent] Tests created
+✅ [AGENT: RefactorAgent] Refactoring complete
 ```
 
 ---
@@ -184,7 +218,7 @@ When an agent completes, show completion status:
 **🤖 [AGENT: DevPlanner] Analyzing task and creating development plan...**
 
 **Agent orchestration:**
-1. **Load agent prompt:** Read `.fluidspec/agents/prompts/dev-planner.txt`
+1. **Load agent prompt:** Read `.fluidspec/agents/prompts/dev-planner.md`
 2. **Follow SYSTEM instructions:** Execute the DevPlanner role exactly as specified
 3. **Agent responsibilities:**
    - Parse Context and Requirements sections from task
@@ -225,14 +259,16 @@ When an agent completes, show completion status:
 
 ### 5.3 Execution
 
-This phase uses two specialized agents in sequence: DevImplementation → TestAgent
+**Pipeline selection:** Based on the dev plan and task requirements, choose either Simple or Complex pipeline.
 
-#### 5.3.1 Implementation (DevImplementation Agent)
+#### Path A: Simple Pipeline (backend-only, small fixes, no UI)
+
+##### 5.3.1 Implementation (DevImplementation Agent)
 
 **🤖 [AGENT: DevImplementation] Implementing code based on plan...**
 
 **Agent orchestration:**
-1. **Load agent prompt:** Read `.fluidspec/agents/prompts/dev-implementation.txt`
+1. **Load agent prompt:** Read `.fluidspec/agents/prompts/dev-implementation.md`
 2. **Follow SYSTEM instructions:** Execute the DevImplementation role exactly as specified
 3. **Agent responsibilities:**
    - Parse the development plan from Section 5.2
@@ -246,27 +282,100 @@ This phase uses two specialized agents in sequence: DevImplementation → TestAg
 
 **✅ [AGENT: DevImplementation] Implementation complete - proceeding to testing**
 
-#### 5.3.2 Testing (TestAgent)
+#### Path B: Complex Pipeline (UI/backend, full-stack features)
+
+##### 5.3.1a Types and Logic (TypesAndLogicAgent)
+
+**🤖 [AGENT: TypesAndLogicAgent] Implementing types and pure business logic...**
+
+**Agent orchestration:**
+1. **Load agent prompt:** Read `.fluidspec/agents/prompts/types-and-logic-agent.md`
+2. **Follow SYSTEM instructions:** Execute the TypesAndLogicAgent role exactly as specified
+3. **Agent responsibilities:**
+   - Define TypeScript types, interfaces, enums, schemas
+   - Implement pure business logic functions (no UI, no side-effects)
+   - Keep code small, composable, and fully type-safe
+   - Follow existing project conventions and naming patterns
+4. **Input:** task_spec, dev_plan, codebase_context, project_conventions
+5. **Execute:** Create or update TypeScript types and pure logic files
+6. **Track progress:** Mark types/logic steps as done
+
+**✅ [AGENT: TypesAndLogicAgent] Types and logic complete - proceeding to integration & UI**
+
+##### 5.3.1b Integration Layer (IntegrationAgent) + UI Components (UIAgent) [PARALLEL]
+
+**These two agents run in parallel, both consuming output from TypesAndLogicAgent:**
+
+**🤖 [AGENT: IntegrationAgent] Creating hooks and API integration...**
+
+**Agent orchestration:**
+1. **Load agent prompt:** Read `.fluidspec/agents/prompts/integration-agent.md`
+2. **Follow SYSTEM instructions:** Execute the IntegrationAgent role exactly as specified
+3. **Agent responsibilities:**
+   - Implement hooks, services, and integration layers for GraphQL/REST
+   - Handle loading, error, and success states
+   - Wire pure logic functions to data-fetching and side-effects
+   - Expose clean, typed APIs for UIAgent to consume
+4. **Input:** task_spec, dev_plan, types_and_logic_files, existing_integration_files, integration_conventions
+5. **Execute:** Create integration layer files (hooks, services, API clients)
+
+**🤖 [AGENT: UIAgent] Implementing React components and UI layouts...**
+
+**Agent orchestration:**
+1. **Load agent prompt:** Read `.fluidspec/agents/prompts/ui-agent.md`
+2. **Follow SYSTEM instructions:** Execute the UIAgent role exactly as specified
+3. **Agent responsibilities:**
+   - Implement React components and UI layouts using JSX and TailwindCSS
+   - Respect design system and UI conventions
+   - Wire existing props and functions into presentational components
+   - Prefer composition over duplication
+4. **Input:** task_spec, dev_plan, types_and_logic_files, design_system, ui_conventions
+5. **Execute:** Create UI component files
+
+**✅ [AGENT: IntegrationAgent] Integration layer complete**
+**✅ [AGENT: UIAgent] UI components complete - proceeding to testing**
+
+#### 5.3.2 Testing (TestAgent) [Both Paths Merge Here]
 
 **🤖 [AGENT: TestAgent] Creating test coverage...**
 
 **Agent orchestration:**
-1. **Load agent prompt:** Read `.fluidspec/agents/prompts/test-agent.txt`
+1. **Load agent prompt:** Read `.fluidspec/agents/prompts/test-agent.md`
 2. **Follow SYSTEM instructions:** Execute the TestAgent role exactly as specified
 3. **Agent responsibilities:**
-   - Analyze the implementation changes from 5.3.1
+   - Analyze the implementation changes (from either path)
    - Identify testable units and integration points
    - Write unit tests for new functions/components
    - Write integration tests for data flow
    - Follow project testing conventions (Jest, Vitest, etc.)
    - Ensure test coverage meets acceptance criteria
-4. **Input:** Implementation changes, dev-plan.md, existing test structure, testing conventions
+4. **Input:**
+   - Simple path: implementation_patch, dev_plan, existing_tests, testing_conventions
+   - Complex path: types_and_logic_files, integration_files, ui_files, dev_plan, existing_tests, testing_conventions
 5. **Execute:** Create test files following project testing patterns
 6. **Track progress:** Mark testing steps as done, ensure acceptance criteria coverage
 
-**✅ [AGENT: TestAgent] Tests created**
+**✅ [AGENT: TestAgent] Tests created - proceeding to refactoring**
 
-**After both sub-phases:**
+#### 5.3.3 Refactoring (RefactorAgent) [Automatic Cleanup]
+
+**🤖 [AGENT: RefactorAgent] Cleaning up and aligning with conventions...**
+
+**Agent orchestration:**
+1. **Load agent prompt:** Read `.fluidspec/agents/prompts/refactor-agent.md`
+2. **Follow SYSTEM instructions:** Execute the RefactorAgent role exactly as specified
+3. **Agent responsibilities:**
+   - Improve readability, structure, and consistency of code
+   - Apply project conventions without changing behavior
+   - Reduce duplication and dead code where safe
+   - Align imports, formatting, and folder structure
+4. **Input:** task_spec (optional), recent_patches (all outputs from stages 5.3.1-5.3.2), project_conventions, candidate_files
+5. **Execute:** Refactor files to align with conventions
+6. **Track progress:** Mark refactoring complete
+
+**✅ [AGENT: RefactorAgent] Refactoring complete**
+
+**After all execution phases:**
 1. Move to `awaiting_approval` status
 2. Re-read full task + `operator_feedback` on iterations
 
