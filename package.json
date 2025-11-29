@@ -12,7 +12,8 @@
     "build": "node scripts/build.js",
     "clean": "node scripts/clean.js",
     "prepare": "npm run clean && npm run build",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "packme": "bash pack.sh"
   },
   "keywords": [
     "fluidspec",
